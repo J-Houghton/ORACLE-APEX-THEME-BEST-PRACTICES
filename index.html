@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Guide to APEX Theme Customization</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Calm Harmony (Stone, Slate, Teal) -->
+    <!-- Application Structure Plan: A single-page application with a sticky top navigation to allow users to jump between key concepts. The core of the app is an interactive "Decision Framework" wizard that guides developers through a series of questions to receive a tailored recommendation. This non-linear, task-oriented structure is more user-friendly than the original report's linear format. It breaks down dense information into digestible sections like "Core Concepts," "Customization Methods" (using tabs), and "Pitfalls" (using cards), making the information scannable and easier to synthesize for a busy developer. -->
+    <!-- Visualization & Content Choices: The application uses several interactive methods to present the report's information. 1) Decision Framework: An interactive wizard (HTML/JS) was chosen to guide users through the report's central question, making the advice actionable. 2) Customization Methods: A tabbed interface (HTML/JS) organizes the various CSS inclusion methods, allowing for easy comparison. 3) Maintainability Impact: A single horizontal bar chart (Chart.js/Canvas) visually represents the technical debt associated with each customization method, providing a quick, high-impact understanding of the consequences. 4) Pitfalls: A card-based layout (HTML/Tailwind) with icons presents anti-patterns in a visually engaging and easily digestible format. All choices support the goal of making technical best practices understandable and actionable. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .nav-link { transition: color 0.3s, border-color 0.3s; }
+        .nav-link.active { color: #0d9488; border-bottom-color: #0d9488; }
+        .content-section { display: none; }
+        .content-section.active { display: block; }
+        .chart-container { position: relative; width: 100%; max-width: 800px; margin-left: auto; margin-right: auto; height: 350px; max-height: 400px; }
+        @media (min-width: 768px) { .chart-container { height: 400px; } }
+        .decision-btn { transition: background-color 0.3s, transform 0.2s; }
+        .decision-btn:hover { transform: translateY(-2px); }
+        .tab.active { background-color: #0d9488; color: #ffffff; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+    </style>
+</head>
+<body class="bg-stone-50 text-slate-800">
+
+    <header class="bg-white/80 backdrop-blur-lg sticky top-0 z-50 shadow-sm">
+        <nav class="container mx-auto px-4">
+            <div class="flex items-center justify-between h-16">
+                <h1 class="text-xl font-bold text-teal-700">APEX UI Customization Guide</h1>
+                <div class="hidden md:flex items-center space-x-4">
+                    <a href="#overview" class="nav-link text-slate-600 hover:text-teal-600 border-b-2 border-transparent pb-1">Overview</a>
+                    <a href="#framework" class="nav-link text-slate-600 hover:text-teal-600 border-b-2 border-transparent pb-1">Decision Framework</a>
+                    <a href="#methods" class="nav-link text-slate-600 hover:text-teal-600 border-b-2 border-transparent pb-1">Methods</a>
+                    <a href="#practices" class="nav-link text-slate-600 hover:text-teal-600 border-b-2 border-transparent pb-1">Best Practices</a>
+                </div>
+                <div class="md:hidden">
+                    <select id="mobile-nav" class="bg-white border border-slate-300 rounded-md py-2 px-3 text-slate-700 focus:outline-none focus:ring-2 focus:ring-teal-500">
+                        <option value="overview">Overview</option>
+                        <option value="framework">Decision Framework</option>
+                        <option value="methods">Methods</option>
+                        <option value="practices">Best Practices</option>
+                    </select>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main class="container mx-auto p-4 md:p-8">
+        
+        <section id="overview" class="content-section active">
+            <div class="text-center mb-12 animate-fade-in">
+                <h2 class="text-4xl font-bold text-slate-900 mb-4">Mastering APEX Theme Updates</h2>
+                <p class="text-lg text-slate-600 max-w-3xl mx-auto">A strategic guide to choosing between custom CSS and page templates for maintainable, scalable, and upgrade-resilient applications.</p>
+            </div>
+            
+            <div class="bg-white p-8 rounded-xl shadow-md mb-12">
+                 <div class="mb-8">
+                    <h3 class="text-2xl font-semibold text-teal-700 mb-4">The Core Principle: Declarative First</h3>
+                    <p class="text-slate-700 leading-relaxed">This guide translates the comprehensive "Best Practices for Oracle APEX Theme Updates" report into an interactive experience. The primary goal is to help you navigate the crucial decision of how to apply customizations. The most important principle is to always favor Oracle's built-in declarative options before resorting to custom code. This approach minimizes technical debt, simplifies future upgrades, and ensures your application remains robust and performant. This application will guide you through this decision-making process, providing clarity on when and how to use each customization method effectively.</p>
+                </div>
+                <div class="grid md:grid-cols-2 gap-8">
+                    <div>
+                        <h4 class="text-xl font-semibold mb-3">Key Customization Layers</h4>
+                        <ul class="space-y-3">
+                            <li class="flex items-start"><span class="text-teal-500 font-bold text-xl mr-3 mt-1">1</span><span><strong>Theme Styles & Theme Roller:</strong> For high-level visual changes like colors and fonts. The most upgrade-safe method.</span></li>
+                            <li class="flex items-start"><span class="text-teal-500 font-bold text-xl mr-3 mt-1">2</span><span><strong>Template Options:</strong> For applying predefined CSS modifiers to specific components. Highly declarative and resilient.</span></li>
+                            <li class="flex items-start"><span class="text-teal-500 font-bold text-xl mr-3 mt-1">3</span><span><strong>External CSS Files:</strong> For specific overrides and custom styling not covered by declarative options. The preferred method for custom code.</span></li>
+                            <li class="flex items-start"><span class="text-teal-500 font-bold text-xl mr-3 mt-1">4</span><span><strong>Page Template Modification:</strong> The last resort. Only for fundamental HTML structural changes, incurring a significant maintenance burden.</span></li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h4 class="text-xl font-semibold mb-3">Maintainability vs. Flexibility</h4>
+                        <p class="text-slate-700 mb-4">Each customization method offers a different balance between flexibility and long-term maintainability. The chart below visualizes the increasing maintenance cost and risk associated with moving away from declarative options.</p>
+                        <div class="chart-container">
+                            <canvas id="maintainabilityChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="framework" class="content-section">
+            <div class="text-center mb-12">
+                <h2 class="text-4xl font-bold text-slate-900 mb-4">Interactive Decision Framework</h2>
+                <p class="text-lg text-slate-600 max-w-3xl mx-auto">Answer the following questions to determine the best customization approach for your specific requirement.</p>
+            </div>
+            <div id="decision-wizard" class="bg-white p-8 rounded-xl shadow-md max-w-3xl mx-auto">
+                <!-- Wizard steps will be injected here by JS -->
+            </div>
+        </section>
+
+        <section id="methods" class="content-section">
+             <div class="text-center mb-12">
+                <h2 class="text-4xl font-bold text-slate-900 mb-4">Customization Methods</h2>
+                <p class="text-lg text-slate-600 max-w-3xl mx-auto">Explore the different ways to integrate custom styles into your APEX application, from declarative options to external files.</p>
+            </div>
+            
+            <div class="bg-white p-8 rounded-xl shadow-md">
+                 <p class="text-slate-700 leading-relaxed mb-6">Choosing the correct method for including CSS is critical for maintainability and performance. The methods are layered, from broad declarative settings to highly specific inline styles. This section provides a practical overview to help you decide which to use. As a rule, always choose the method with the narrowest scope that meets your needs and prefer external files over inline styles for better caching and organization.</p>
+                <div class="mb-6 border-b border-slate-200">
+                    <nav class="-mb-px flex space-x-6" aria-label="Tabs">
+                        <button class="tab whitespace-nowrap py-3 px-1 border-b-2 font-medium text-sm border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300" data-tab="declarative">Declarative Options</button>
+                        <button class="tab whitespace-nowrap py-3 px-1 border-b-2 font-medium text-sm border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300" data-tab="files">External CSS Files</button>
+                        <button class="tab whitespace-nowrap py-3 px-1 border-b-2 font-medium text-sm border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300" data-tab="inline">Inline & Page-Level</button>
+                    </nav>
+                </div>
+
+                <div id="declarative" class="tab-content">
+                    <h3 class="text-2xl font-semibold mb-4 text-teal-700">Declarative Options</h3>
+                    <div class="space-y-6">
+                        <div>
+                            <h4 class="font-semibold text-lg">Theme Styles (via Theme Roller)</h4>
+                            <p class="text-slate-600 mt-1">The primary method for broad, application-wide visual changes. It's highly resilient to upgrades because styles are "re-compiled" after a theme refresh.</p>
+                            <ul class="list-disc list-inside mt-2 text-slate-600 space-y-1">
+                                <li><strong>When to use:</strong> Modifying the color palette, fonts, spacing, and other global aesthetics.</li>
+                                <li><strong>Scope:</strong> Entire Application.</li>
+                                <li><strong>Best Practice:</strong> Use for all high-level branding. Be aware of the ~1.5k line limit for the "Custom CSS" section; it's not a general-purpose CSS editor.</li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h4 class="font-semibold text-lg">Template Options</h4>
+                            <p class="text-slate-600 mt-1">A declarative way to apply predefined CSS classes to specific components like regions, reports, and buttons, enabling different visual styles without creating new templates.</p>
+                             <ul class="list-disc list-inside mt-2 text-slate-600 space-y-1">
+                                <li><strong>When to use:</strong> For component-specific styling variations (e.g., a "highlighted" card region, a "pill" style button).</li>
+                                <li><strong>Scope:</strong> Specific components using a template.</li>
+                                <li><strong>Best Practice:</strong> The best way to manage component variations. They are generally preserved during theme refreshes, making them very maintainable.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="files" class="tab-content">
+                    <h3 class="text-2xl font-semibold mb-4 text-teal-700">External CSS Files</h3>
+                     <div class="space-y-6">
+                        <div>
+                            <h4 class="font-semibold text-lg">Static Workspace Files</h4>
+                            <p class="text-slate-600 mt-1">Ideal for CSS that needs to be shared across multiple applications within the same workspace (e.g., `global.css`).</p>
+                             <ul class="list-disc list-inside mt-2 text-slate-600 space-y-1">
+                                <li><strong>When to use:</strong> For consistent corporate branding, helper classes, and styles shared by all your apps.</li>
+                                <li><strong>Scope:</strong> Workspace-wide.</li>
+                                <li><strong>Best Practice:</strong> Reference via `#WORKSPACE_FILES#` at the application level. Note: Must be exported/imported separately from the application.</li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h4 class="font-semibold text-lg">Static Application Files</h4>
+                            <p class="text-slate-600 mt-1">Used for CSS specific to a single application (e.g., `app.css`).</p>
+                             <ul class="list-disc list-inside mt-2 text-slate-600 space-y-1">
+                                <li><strong>When to use:</strong> For all styles that are unique to the current application.</li>
+                                <li><strong>Scope:</strong> Single Application.</li>
+                                <li><strong>Best Practice:</strong> Reference via `#APP_FILES#`. This is the most common and recommended location for custom CSS code. Included in application exports.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="inline" class="tab-content">
+                    <h3 class="text-2xl font-semibold mb-4 text-teal-700">Inline & Page-Level CSS</h3>
+                     <div class="space-y-6">
+                        <div>
+                            <h4 class="font-semibold text-lg">Page-Level Inline CSS</h4>
+                            <p class="text-slate-600 mt-1">CSS code entered directly into the "Inline CSS" attribute of a specific page.</p>
+                             <ul class="list-disc list-inside mt-2 text-slate-600 space-y-1">
+                                <li><strong>When to use:</strong> For small, highly-specific tweaks that apply only to one page and are unlikely to be reused.</li>
+                                <li><strong>Scope:</strong> Single Page.</li>
+                                <li><strong>Best Practice:</strong> Use sparingly. Overuse makes maintenance difficult. If you find yourself copying the same inline CSS to multiple pages, move it to a Static Application File.</li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h4 class="font-semibold text-lg">Component-Level Inline Styles</h4>
+                            <p class="text-slate-600 mt-1">Applying styles directly to a component's HTML `style` attribute.</p>
+                             <ul class="list-disc list-inside mt-2 text-slate-600 space-y-1">
+                                <li><strong>When to use:</strong> Almost never. Reserved for highly dynamic styles set by JavaScript that cannot be achieved with classes.</li>
+                                <li><strong>Scope:</strong> Single HTML Element.</li>
+                                <li><strong>Best Practice:</strong> Strongly discouraged. It clutters code, has high specificity that can be hard to override, and is very difficult to maintain.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </section>
+
+        <section id="practices" class="content-section">
+            <div class="text-center mb-12">
+                <h2 class="text-4xl font-bold text-slate-900 mb-4">Best Practices & Pitfalls</h2>
+                <p class="text-lg text-slate-600 max-w-3xl mx-auto">Avoid common mistakes to ensure your application remains healthy, performant, and easy to upgrade.</p>
+            </div>
+            
+            <div class="mb-12">
+                <h3 class="text-2xl font-semibold text-teal-700 mb-6 text-center">Common Pitfalls to Avoid</h3>
+                <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div class="bg-white p-6 rounded-lg shadow-md border-l-4 border-red-500">
+                        <div class="flex items-center mb-3">
+                            <span class="text-2xl mr-3">🚫</span>
+                            <h4 class="font-semibold text-lg">Directly Modifying Themes</h4>
+                        </div>
+                        <p class="text-slate-600">Never modify a subscribed Universal Theme template directly. Your changes will be wiped out on the next theme refresh.</p>
+                    </div>
+                     <div class="bg-white p-6 rounded-lg shadow-md border-l-4 border-red-500">
+                        <div class="flex items-center mb-3">
+                            <span class="text-2xl mr-3">🚫</span>
+                            <h4 class="font-semibold text-lg">Overusing Inline Styles</h4>
+                        </div>
+                        <p class="text-slate-600">Relying on page-level or component-level inline styles makes code hard to read, maintain, and scale.</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-lg shadow-md border-l-4 border-red-500">
+                        <div class="flex items-center mb-3">
+                            <span class="text-2xl mr-3">🚫</span>
+                            <h4 class="font-semibold text-lg">Creating Too Many Copies</h4>
+                        </div>
+                        <p class="text-slate-600">Copying templates for minor changes creates a huge maintenance burden, as you miss out on Oracle's bug fixes and enhancements.</p>
+                    </div>
+                     <div class="bg-white p-6 rounded-lg shadow-md border-l-4 border-orange-500">
+                        <div class="flex items-center mb-3">
+                            <span class="text-2xl mr-3">⚠️</span>
+                            <h4 class="font-semibold text-lg">Ignoring CSS Variables</h4>
+                        </div>
+                        <p class="text-slate-600">Universal Theme uses CSS variables extensively. Overriding them is cleaner and more future-proof than targeting complex selectors.</p>
+                    </div>
+                     <div class="bg-white p-6 rounded-lg shadow-md border-l-4 border-orange-500">
+                        <div class="flex items-center mb-3">
+                           <span class="text-2xl mr-3">⚠️</span>
+                            <h4 class="font-semibold text-lg">Forgetting Accessibility</h4>
+                        </div>
+                        <p class="text-slate-600">Custom styles can break accessibility. Use Theme Roller's contrast checker and test your customizations.</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-lg shadow-md border-l-4 border-orange-500">
+                        <div class="flex items-center mb-3">
+                           <span class="text-2xl mr-3">⚠️</span>
+                            <h4 class="font-semibold text-lg">Disorganized CSS</h4>
+                        </div>
+                        <p class="text-slate-600">Lack of structure (e.g., no `global.css` or `app.css`) leads to conflicting rules and difficult debugging.</p>
+                    </div>
+                </div>
+            </div>
+            
+             <div>
+                <h3 class="text-2xl font-semibold text-teal-700 mb-6 text-center">Key Recommendations</h3>
+                <div class="bg-white p-8 rounded-xl shadow-md max-w-4xl mx-auto space-y-6">
+                     <div class="flex items-start">
+                        <span class="text-green-500 text-2xl mr-4">✓</span>
+                        <div>
+                            <h4 class="font-semibold text-lg">Keep Universal Theme Subscribed</h4>
+                            <p class="text-slate-600">This is the single most important practice for ensuring you can easily apply updates, bug fixes, and new features from Oracle.</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start">
+                        <span class="text-green-500 text-2xl mr-4">✓</span>
+                        <div>
+                            <h4 class="font-semibold text-lg">Layer Your CSS Logically</h4>
+                            <p class="text-slate-600">Use a structured approach: `global.css` (Workspace) for branding, `app.css` (Application) for specific styles, and inline CSS only as a last resort.</p>
+                        </div>
+                    </div>
+                     <div class="flex items-start">
+                        <span class="text-green-500 text-2xl mr-4">✓</span>
+                        <div>
+                            <h4 class="font-semibold text-lg">Prioritize CSS Variables</h4>
+                            <p class="text-slate-600">When overriding theme styles, check if there's a CSS variable you can redefine first. It's a cleaner and more maintainable approach.</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start">
+                        <span class="text-red-500 text-2xl mr-4">✗</span>
+                        <div>
+                            <h4 class="font-semibold text-lg">Avoid Modifying Page Templates</h4>
+                            <p class="text-slate-600">Treat this as the option of last resort. The maintenance overhead is significant. Only proceed if you have a non-negotiable requirement for fundamental HTML structure changes.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="text-center py-8 text-slate-500 text-sm">
+        <p>Interactive guide based on the "Best Practices for Oracle APEX Theme Updates" report.</p>
+        <p>Built with Tailwind CSS and Chart.js.</p>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+
+            const navLinks = document.querySelectorAll('.nav-link');
+            const mobileNav = document.getElementById('mobile-nav');
+            const contentSections = document.querySelectorAll('.content-section');
+
+            function setActiveSection(hash) {
+                const targetId = hash.substring(1);
+
+                contentSections.forEach(section => {
+                    section.classList.remove('active');
+                    if (section.id === targetId) {
+                        section.classList.add('active');
+                        section.classList.add('animate-fade-in');
+                    }
+                });
+
+                navLinks.forEach(link => {
+                    link.classList.remove('active');
+                    if (link.getAttribute('href') === hash) {
+                        link.classList.add('active');
+                    }
+                });
+                
+                if (mobileNav.value !== targetId) {
+                    mobileNav.value = targetId;
+                }
+            }
+            
+            function handleNavigation(event) {
+                event.preventDefault();
+                const targetHash = this.getAttribute('href');
+                window.history.pushState(null, null, targetHash);
+                setActiveSection(targetHash);
+                window.scrollTo(0, 0);
+            }
+
+            navLinks.forEach(link => {
+                link.addEventListener('click', handleNavigation);
+            });
+            
+            mobileNav.addEventListener('change', (event) => {
+                 const targetHash = `#${event.target.value}`;
+                 window.history.pushState(null, null, targetHash);
+                 setActiveSection(targetHash);
+                 window.scrollTo(0, 0);
+            });
+            
+            window.addEventListener('popstate', () => {
+                const hash = window.location.hash || '#overview';
+                setActiveSection(hash);
+            });
+            
+            const initialHash = window.location.hash || '#overview';
+            setActiveSection(initialHash);
+
+            const maintainabilityCtx = document.getElementById('maintainabilityChart').getContext('2d');
+            new Chart(maintainabilityCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['Theme Styles & Template Options', 'External CSS File', 'Copied/Modified Page Template'],
+                    datasets: [{
+                        label: 'Maintenance Overhead & Risk',
+                        data: [20, 50, 95],
+                        backgroundColor: [
+                            'rgba(15, 118, 110, 0.6)',
+                            'rgba(249, 115, 22, 0.6)',
+                            'rgba(239, 68, 68, 0.6)'
+                        ],
+                        borderColor: [
+                            'rgb(13, 148, 136)',
+                            'rgb(249, 115, 22)',
+                            'rgb(239, 68, 68)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            beginAtZero: true,
+                            max: 100,
+                            ticks: {
+                                callback: function(value) {
+                                    if(value === 0) return 'Low';
+                                    if(value === 50) return 'Medium';
+                                    if(value === 100) return 'High';
+                                    return '';
+                                }
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                             callbacks: {
+                                label: function(context) {
+                                    let label = context.dataset.label || '';
+                                    if (label) {
+                                        label += ': ';
+                                    }
+                                    if(context.raw <= 20) label += 'Low';
+                                    else if(context.raw <= 60) label += 'Medium';
+                                    else label += 'High';
+                                    return label;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            const tabs = document.querySelectorAll('.tab');
+            const tabContents = document.querySelectorAll('.tab-content');
+            tabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    const target = tab.dataset.tab;
+                    
+                    tabs.forEach(t => t.classList.remove('active'));
+                    tab.classList.add('active');
+                    
+                    tabContents.forEach(content => {
+                        content.classList.remove('active');
+                        if (content.id === target) {
+                            content.classList.add('active');
+                        }
+                    });
+                });
+            });
+            tabs[0].click();
+            
+            const wizardContainer = document.getElementById('decision-wizard');
+            const decisionSteps = [
+                {
+                    id: 1,
+                    question: "What is the nature of your change?",
+                    answers: [
+                        { text: "Visual styling (colors, fonts, spacing, borders)", next: 2 },
+                        { text: "Adding/rearranging HTML elements or changing page structure", next: 3 }
+                    ]
+                },
+                {
+                    id: 2,
+                    question: "Can this visual change be achieved using Theme Roller or Template Options?",
+                    answers: [
+                        { text: "Yes, it's a standard property.", result: 'declarative' },
+                        { text: "No, I need more specific control or a new utility class.", result: 'css' }
+                    ]
+                },
+                {
+                    id: 3,
+                    question: "Is this structural change absolutely required and impossible to achieve with CSS (e.g., Flexbox `order`, Grid layouts, `position: absolute`)?",
+                    answers: [
+                        { text: "Yes, the fundamental HTML must be different.", result: 'template' },
+                        { text: "No, I can probably achieve the layout with advanced CSS.", result: 'css' }
+                    ]
+                }
+            ];
+
+            const decisionResults = {
+                declarative: {
+                    title: "Recommendation: Use Declarative Options",
+                    color: "teal",
+                    recommendation: "Your change is best handled by APEX's built-in declarative features. This is the most maintainable and upgrade-safe approach.",
+                    actions: [
+                        "Use <strong>Theme Roller</strong> for application-wide style changes (e.g., color palette).",
+                        "Use <strong>Template Options</strong> to apply predefined styles to specific components (e.g., a special region look)."
+                    ]
+                },
+                css: {
+                    title: "Recommendation: Add a Custom CSS File",
+                    color: "blue",
+                    recommendation: "This is the ideal approach for custom styles that go beyond declarative options but don't require changing the page structure. It's maintainable and balances flexibility with upgrade safety.",
+                    actions: [
+                        "Create or use an existing <strong>Static Application File</strong> (e.g., `app.css`).",
+                        "Add your custom CSS rules. Prioritize overriding APEX's <strong>CSS variables</strong> where possible for cleaner code.",
+                        "Reference the file in your application's User Interface Attributes."
+                    ]
+                },
+                template: {
+                    title: "Recommendation: Modify a Page Template (Use with Extreme Caution)",
+                    color: "red",
+                    recommendation: "Proceed only if absolutely necessary. This path offers maximum control but creates a significant long-term maintenance burden, as your copied template will NOT receive automatic updates from Oracle.",
+                    actions: [
+                        "<strong>NEVER</strong> modify the subscribed Universal Theme template directly.",
+                        "<strong>Copy</strong> the standard page template and give it a new name.",
+                        "Understand that you are now responsible for <strong>manually merging</strong> future APEX theme updates into your copied template."
+                    ]
+                }
+            };
+            
+            function renderWizardStep(stepId) {
+                const step = decisionSteps.find(s => s.id === stepId);
+                if (step) {
+                    wizardContainer.innerHTML = `
+                        <h3 class="text-xl font-semibold text-center mb-6">${step.question}</h3>
+                        <div class="flex flex-col md:flex-row justify-center gap-4">
+                            ${step.answers.map(answer => `
+                                <button data-next="${answer.next}" data-result="${answer.result}" class="decision-btn w-full md:w-auto text-white font-semibold py-3 px-6 rounded-lg shadow-md bg-slate-600 hover:bg-slate-700">
+                                    ${answer.text}
+                                </button>
+                            `).join('')}
+                        </div>
+                    `;
+                }
+            }
+            
+            function renderWizardResult(resultId) {
+                 const result = decisionResults[resultId];
+                 wizardContainer.innerHTML = `
+                    <div class="p-6 rounded-lg border-l-4 border-${result.color}-500 bg-${result.color}-50">
+                        <h3 class="text-2xl font-bold text-${result.color}-700 mb-4">${result.title}</h3>
+                        <p class="text-slate-700 mb-4">${result.recommendation}</p>
+                        <h4 class="font-semibold text-lg text-slate-800 mb-2">Recommended Actions:</h4>
+                        <ul class="list-disc list-inside space-y-2 text-slate-700">
+                            ${result.actions.map(action => `<li>${action}</li>`).join('')}
+                        </ul>
+                    </div>
+                    <div class="text-center mt-6">
+                        <button id="restart-wizard" class="bg-teal-600 hover:bg-teal-700 text-white font-semibold py-2 px-5 rounded-lg decision-btn">Start Over</button>
+                    </div>
+                 `;
+                 document.getElementById('restart-wizard').addEventListener('click', () => renderWizardStep(1));
+            }
+
+            wizardContainer.addEventListener('click', function(e) {
+                if(e.target.matches('.decision-btn')) {
+                    const nextStep = e.target.dataset.next;
+                    const result = e.target.dataset.result;
+                    
+                    if (result && result !== 'undefined') {
+                        renderWizardResult(result);
+                    } else if(nextStep) {
+                        renderWizardStep(parseInt(nextStep, 10));
+                    }
+                }
+            });
+
+            renderWizardStep(1);
+        });
+    </script>
+</body>
+</html>
